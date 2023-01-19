@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Members Only Dashboard</title>
+</head>
+<body>
+  <% if (user) {%>
+    <nav>
+        <a href="/log-out">LOG OUT</a>
+    </nav>
+    <h1>Welcome to the club <%= user.username %></h1>
+    <div>
+        <form action="/dashboard" method="POST">
+            <label for="message">Create new message</label>
+            <input name="message" placeholder="Hello world..." type="textarea" />
+            <button>Submit</button>
+        </form>
+    </div>
+  <% } else { %>
+    <h1>please log in</h1>
+  <%}%>
+</body>
+</html>

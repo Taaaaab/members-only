@@ -2,16 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title></title>
+  <title>Members Only Sign-up</title>
 </head>
 <body>
-  <h1>Sign Up</h1>
-  <form action="" method="POST">
-    <label for="username">Username</label>
-    <input name="username" placeholder="username" type="text" />
-    <label for="password">Password</label>
-    <input name="password" type="password" />
-    <button>Sign Up</button>
-  </form>
+  <h1>Sign up</h1>
+  <h3>Already have an account?</h3>
+  <a href="/">Log in</a>
+  <% if (errors) {%>
+    <h2>Error: <%= errors %></h2>
+  <% } else { %>
+    <form action="" method="POST">
+        <label for="full_name">Name:</label>
+        <input name="full_name" placeholder="John Smith" type="text" />
+        <label for="username">Username:</label>
+        <input name="username" placeholder="username" type="text" />
+        <label for="password">Password:</label>
+        <input name="password" type="password" />
+        <label for="confirmPassword">Confirm Password:</label>
+        <input name="confirmPassword" type="password" />
+        <button>Sign Up</button>
+    </form>
+  <%}%>
 </body>
 </html>
