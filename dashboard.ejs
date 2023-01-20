@@ -19,10 +19,23 @@
                 <form action="/dashboard" method="POST">
                     <div class="form-group">
                         <label for="message">Create new message</label>
-                        <input class="form-control" name="message" placeholder="Hello world..." type="textarea" />
+                        <textarea class="form-control" name="message" placeholder="Hello world..." rows="3"></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
+            </div>
+            <div class="message-box">
+                <% message_list.forEach(function(message) { %>
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= message.author %></h5>
+                            <h6 class="card-subtitle mb-2 text-muted"><%= message.dateStamp %></h6>
+                            <p class="card-text">
+                                <%= message.text %>
+                            </p>
+                        </div>
+                    </div>
+                <% }) %>
             </div>
         <% } else { %>
             <nav>
@@ -30,8 +43,16 @@
                 <a href="/sign-up">SIGN UP</a>
             </nav>
             <h2>Welcome guest</h2>
-            <div>
-
+            <div class="message-box">
+                <% message_list.forEach(function(message) { %>
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <p class="card-text">
+                                <%= message.text %>
+                            </p>
+                        </div>
+                    </div>
+                <% }) %>
             </div>
         <%}%>
     </div>

@@ -28,6 +28,15 @@ const User = mongoose.model(
   })
 );
 
+const Message = mongoose.model(
+  "Message",
+  new Schema({
+    text: { type: String, required: true },
+    author: { type: String, required: true },
+    dateStamp: { type: Date, required: true },
+  })
+);
+
 const app = express();
 app.use(express.static(__dirname + '/public'));
 app.set("views", __dirname);
@@ -87,7 +96,16 @@ app.get("/sign-up", (req, res) => {
 }); 
 
 app.get("/dashboard", (req, res) => {
-    res.render("dashboard", { currentUser: req.user });
+  Message.find()
+  .exec(function (err, list_messages) {
+    if (err) {
+      return next(err);
+    }
+    res.render("dashboard", { 
+      currentUser: req.user,
+      message_list: list_messages,
+    });
+  });
 });
 
 app.post("/sign-up", urlencodedParser, [
@@ -144,6 +162,21 @@ app.post("/sign-up", urlencodedParser, [
     };
     
     
+});
+
+app.post("/dashboard", (req, res, next) => {
+  // Create a Message object with escaped and trimmed data.
+  const message = new Message({
+      text: req.body.message,
+      author: req.user.username,
+      dateStamp: new Date()
+    }).save(err => {
+      if (err) { 
+        return next(err);
+      }
+      res.redirect("/dashboard");
+    });
+  
 });
 
 app.post(
