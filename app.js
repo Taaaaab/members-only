@@ -6,8 +6,10 @@ const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
-require('dotenv').config()
+require('dotenv').config();
+const async = require("async");
 const { body, validationResult } = require("express-validator");
+const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
@@ -27,6 +29,7 @@ const User = mongoose.model(
 );
 
 const app = express();
+app.use(express.static(__dirname + '/public'));
 app.set("views", __dirname);
 app.set("view engine", "ejs");
 
@@ -69,6 +72,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
 
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
+
 app.use(function(req, res, next) {
     res.locals.currentUser = req.user;
     next();
@@ -79,48 +84,52 @@ app.get("/", (req, res) => {
 });
 
 app.get("/sign-up", (req, res) => {
-    res.render("sign-up-form", { errors: req.errors});
-});
+    res.render("sign-up-form", { user: req.user });
+}); 
 
 app.get("/dashboard", (req, res) => {
     res.render("dashboard", { user: req.user });
 });
 
-app.post("/sign-up", (req, res, next) => {
+app.post("/sign-up", urlencodedParser, [
     // Validate and sanitize fields.
     body("full_name")
+    .exists()
     .trim()
     .isLength({ min: 1 })
     .escape()
     .withMessage("Name must be specified."),
     body("username")
+    .isEmail()
+    .normalizeEmail()
     .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .withMessage("Username must be specified."),
+    .isLength({ min: 3 })
+    .withMessage("Username must be specified and at least 3 characters long."),
     body("password")
-    .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .withMessage("Password must be specified."),
-    // Process request after validation and sanitization.
-    (req, res, next) => {
-    // Extract the validation errors from a request.
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        // There are errors. Render form again with sanitized values/errors messages.
-        res.render("sign-up-form", {
-          errors: errors.array(),
-        });
-        return;
-      }
-    }
-      // Data from form is valid.
-      // Create a User object with escaped and trimmed data.
-    bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
-        if (err) {
-            return next(err);
+    .isLength({ min: 5 })
+    .withMessage("Password must be specified and at least 5 characters."),
+    body("confirmPassword")
+    .custom(async (confirmPassword, { req }) => {
+        const password = req.body.password
+
+        if (password !== confirmPassword) {
+            throw new Error("Password confirmation field does not match password.");
         }
+    }),
+], (req, res, next) => {
+    // If errors, render form with errors array
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        // return res.status(422).jsonp(errors.array());
+        const alert = errors.array();
+
+        res.render("sign-up-form", {
+            alert
+        })
+    } else {
+    // Data from form is valid.
+    // Create a User object with escaped and trimmed data.
+      bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
         const user = new User({
             full_name: req.body.full_name,
             username: req.body.username,
@@ -133,6 +142,8 @@ app.post("/sign-up", (req, res, next) => {
             res.redirect("/dashboard");
           });
       });
+    };
+    
     
 });
 
