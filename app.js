@@ -71,7 +71,6 @@ app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
-
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(function(req, res, next) {
@@ -80,15 +79,15 @@ app.use(function(req, res, next) {
 });
 
 app.get("/", (req, res) => {
-    res.render("index", { user: req.user });
+  res.render("index");
 });
 
 app.get("/sign-up", (req, res) => {
-    res.render("sign-up-form", { user: req.user });
+    res.render("sign-up-form");
 }); 
 
 app.get("/dashboard", (req, res) => {
-    res.render("dashboard", { user: req.user });
+    res.render("dashboard", { currentUser: req.user });
 });
 
 app.post("/sign-up", urlencodedParser, [
@@ -139,7 +138,7 @@ app.post("/sign-up", urlencodedParser, [
             if (err) { 
               return next(err);
             }
-            res.redirect("/dashboard");
+            res.redirect("/");
           });
       });
     };
