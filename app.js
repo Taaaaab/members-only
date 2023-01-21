@@ -15,12 +15,19 @@ const Schema = mongoose.Schema;
 const compression = require("compression");
 const helmet = require("helmet");
 
-const dev_db_url = process.env.MONGODB_URL;
-const mongoDB = process.env.MONGODB_URI || dev_db_url;
-mongoose.connect(mongoDB, { useUnifiedTopology: true, useNewUrlParser: true });
+const mongoDB = process.env.MONGODB_URL;
+mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
-db.on("error", console.error.bind(console, "mongo connection error"));
+db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
+const app = express();
+app.use(compression()); // Compress all routes
+app.use(helmet());
+app.use(express.static(__dirname + "/public"));
+app.set("views", __dirname + "/views");
+app.set("view engine", "ejs");
+
+// Creating mongoose schema models
 const User = mongoose.model(
   "User",
   new Schema({
@@ -40,13 +47,6 @@ const Message = mongoose.model(
     dateStamp: { type: Date, required: true },
   })
 );
-
-const app = express();
-app.use(compression()); // Compress all routes
-app.use(helmet());
-app.use(express.static(__dirname + "/public"));
-app.set("views", __dirname + "/views");
-app.set("view engine", "ejs");
 
 passport.use(
     new LocalStrategy((username, password, done) => {
@@ -270,4 +270,4 @@ app.get("/log-out", (req, res, next) => {
     });
 });
 
-app.listen(3000, () => console.log("app listening on port 3000!"));
+module.exports = app;
