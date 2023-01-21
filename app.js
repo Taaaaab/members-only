@@ -10,7 +10,6 @@ require('dotenv').config();
 const async = require("async");
 const { body, validationResult } = require("express-validator");
 const bodyParser = require("body-parser");
-const Schema = mongoose.Schema;
 const compression = require("compression");
 const helmet = require("helmet");
 
@@ -34,6 +33,7 @@ app.use(express.static(__dirname + "/public"));
 app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
 
+const Schema = mongoose.Schema;
 // Creating mongoose schema models
 const User = mongoose.model(
   "User",
