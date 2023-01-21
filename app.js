@@ -6,7 +6,7 @@ const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
-require('dotenv').config();
+require('dotenv').config({path:__dirname+'/.env'});
 const async = require("async");
 const { body, validationResult } = require("express-validator");
 const bodyParser = require("body-parser");
