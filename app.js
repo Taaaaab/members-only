@@ -17,7 +17,8 @@ const app = express();
 
 // Set up mongoose connection
 const mongoose = require("mongoose");
-const mongoDB = process.env.MONGODB_URI;
+const dev_db_url = process.env.MONGODB_URL;
+const mongoDB = process.env.MONGODB_URI || dev_db_url;
 const  connectDB =  async(url)=>{
   return await mongoose.connect(url)
    .then(()=>console.log('connected to db...'))   
