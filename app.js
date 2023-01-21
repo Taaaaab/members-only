@@ -6,21 +6,28 @@ const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
-require('dotenv').config({path:__dirname+'/.env'});
+require('dotenv').config();
 const async = require("async");
 const { body, validationResult } = require("express-validator");
 const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const compression = require("compression");
 const helmet = require("helmet");
 
-const mongoDB = process.env.MONGODB_URL;
-mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
+const app = express();
+
+// Set up mongoose connection
+const mongoose = require("mongoose");
+mongoose.set('strictQuery', false);
+const mongoDB = process.env.MONGODB_URI;
+
+main().catch(err => console.log(err));
+async function main() {
+  await mongoose.connect(mongoDB);
+}
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-const app = express();
 app.use(compression()); // Compress all routes
 app.use(helmet());
 app.use(express.static(__dirname + "/public"));
