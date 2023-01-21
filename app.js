@@ -1,6 +1,4 @@
-var createError = require('http-errors');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+/////// app.js
 
 const express = require("express");
 const path = require("path");
@@ -16,8 +14,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const compression = require("compression");
 const helmet = require("helmet");
-
-const app = express();
 
 const dev_db_url = process.env.MONGODB_URL;
 const mongoDB = process.env.MONGODB_URI || dev_db_url;
@@ -45,11 +41,9 @@ const Message = mongoose.model(
   })
 );
 
+const app = express();
 app.use(compression()); // Compress all routes
 app.use(helmet());
-app.use(logger('dev'));
-app.use(express.json());
-app.use(cookieParser());
 app.use(express.static(__dirname + "/public"));
 app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
@@ -276,20 +270,4 @@ app.get("/log-out", (req, res, next) => {
     });
 });
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-module.exports = app;
+app.listen(3000, () => console.log("app listening on port 3000!"));
