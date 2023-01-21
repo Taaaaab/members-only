@@ -17,13 +17,14 @@ const app = express();
 
 // Set up mongoose connection
 const mongoose = require("mongoose");
-mongoose.set('strictQuery', false);
 const mongoDB = process.env.MONGODB_URI;
-
-main().catch(err => console.log(err));
-async function main() {
-  await mongoose.connect(mongoDB);
-}
+const  connectDB =  async(url)=>{
+  return await mongoose.connect(url)
+   .then(()=>console.log('connected to db...'))   
+  .catch((error)=>console.log(error))
+  
+  }
+connectDB(mongoDB);  
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
