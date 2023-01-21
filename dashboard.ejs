@@ -10,12 +10,41 @@
 </head>
 <body>
     <div class="container">
-        <% if (currentUser) {%>
+        <% if (user.admin == true) {%>
             <nav>
                 <a href="/join-club">JOIN THE CLUB</a>
                 <a href="/log-out">LOG OUT</a>
             </nav>
-            <h1>Welcome to the club <%= currentUser.username %></h1>
+            <h1>Welcome to the club admin <%= user.username %></h1>
+            <div>
+                <form action="/dashboard" method="POST">
+                    <div class="form-group">
+                        <label for="message">Create new message</label>
+                        <textarea class="form-control" name="message" placeholder="Hello world..." rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+            <div class="message-box">
+                <% message_list.forEach(function(message) { %>
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= message.author %></h5>
+                            <h6 class="card-subtitle mb-2 text-muted"><%= message.dateStamp %></h6>
+                            <p class="card-text">
+                                <%= message.text %>
+                            </p>
+                            <a class="delete" data-doc="<%= message._id %>">Delete</a>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <%} else if (user) {%>
+            <nav>
+                <a href="/join-club">JOIN THE CLUB</a>
+                <a href="/log-out">LOG OUT</a>
+            </nav>
+            <h1>Welcome to the club <%= user.username %></h1>
             <div>
                 <form action="/dashboard" method="POST">
                     <div class="form-group">
@@ -38,24 +67,20 @@
                     </div>
                 <% }) %>
             </div>
-        <% } else { %>
-            <nav>
-                <a href="/">LOG IN</a>
-                <a href="/sign-up">SIGN UP</a>
-            </nav>
-            <h2>Welcome guest</h2>
-            <div class="message-box">
-                <% message_list.forEach(function(message) { %>
-                    <div class="card" style="width: 18rem;">
-                        <div class="card-body">
-                            <p class="card-text">
-                                <%= message.text %>
-                            </p>
-                        </div>
-                    </div>
-                <% }) %>
-            </div>
         <%}%>
     </div>
+    <script>
+        const trashcan = document.querySelector("a.delete");
+        trashcan.addEventListener("click", (e) => {
+            const endpoint = `/dashboard/${trashcan.dataset.doc}`;
+
+            fetch(endpoint, {
+                method: "DELETE"
+            })
+            .then((response) => response.json())
+            .then((data) => window.location.href = data.redirect)
+            .catch(err => console.log(err));
+        })
+    </script>
 </body>
 </html>

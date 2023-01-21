@@ -12,9 +12,12 @@ const { body, validationResult } = require("express-validator");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const compression = require("compression");
+const helmet = require("helmet");
 
-const mongoDb = process.env.MONGODB_URL;
-mongoose.connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true });
+const dev_db_url = process.env.MONGODB_URL;
+const mongoDB = process.env.MONGODB_URI || dev_db_url;
+mongoose.connect(mongoDB, { useUnifiedTopology: true, useNewUrlParser: true });
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "mongo connection error"));
 
@@ -39,6 +42,8 @@ const Message = mongoose.model(
 );
 
 const app = express();
+app.use(compression()); // Compress all routes
+app.use(helmet());
 app.use(express.static(__dirname + '/public'));
 app.set("views", __dirname);
 app.set("view engine", "ejs");
@@ -102,10 +107,18 @@ app.get("/dashboard", (req, res) => {
     if (err) {
       return next(err);
     }
-    res.render("dashboard", { 
-      currentUser: req.user,
-      message_list: list_messages,
-    });
+    if (req.user) {
+      res.render("dashboard", { 
+        user: req.user,
+        message_list: list_messages,
+      });
+    } else {
+      res.render("guest-dashboard", { 
+        user: req.user,
+        message_list: list_messages,
+      });
+    }
+    
   });
 });
 
@@ -227,6 +240,18 @@ app.post("/join-club", urlencodedParser, [
   });
   }
 ]);
+
+app.delete("/dashboard/:id", (req, res) => {
+  const id = req.params.id;
+
+  Message.findByIdAndDelete(id)
+  .then(result => {
+    res.json({ redirect: "/dashboard" })
+  })
+  .catch(err => {
+    console.log(err);
+  })
+})
 
 app.post(
     "/log-in",
