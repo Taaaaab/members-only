@@ -45,7 +45,7 @@ const app = express();
 app.use(compression()); // Compress all routes
 app.use(helmet());
 app.use(express.static(__dirname + '/public'));
-app.set("views", __dirname);
+app.set("views", __dirname + '/views');
 app.set("view engine", "ejs");
 
 passport.use(
@@ -270,4 +270,4 @@ app.get("/log-out", (req, res, next) => {
     });
 });
 
-app.listen(3000, () => console.log("app listening on port 3000!"));
+module.exports = app;
