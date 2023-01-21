@@ -24,7 +24,8 @@ const User = mongoose.model(
     full_name: { type: String, required: true},
     username: { type: String, required: true },
     password: { type: String, required: true },
-    membership_status: { type: Boolean, required: true}
+    membership_status: { type: Boolean, default: false},
+    admin: { type: Boolean, default: false },
   })
 );
 
@@ -108,6 +109,14 @@ app.get("/dashboard", (req, res) => {
   });
 });
 
+app.get("/join-club", (req, res, next) => {
+// Success
+  res.render("join-club", {
+    title: "Ready to join the club?",
+    user: res.locals.currentUser,
+  })
+}); 
+
 app.post("/sign-up", urlencodedParser, [
     // Validate and sanitize fields.
     body("full_name")
@@ -151,7 +160,8 @@ app.post("/sign-up", urlencodedParser, [
             full_name: req.body.full_name,
             username: req.body.username,
             password: hashedPassword,
-            membership_status: false
+            membership_status: false,
+            admin: req.body.admin,
           }).save(err => {
             if (err) { 
               return next(err);
@@ -178,6 +188,45 @@ app.post("/dashboard", (req, res, next) => {
     });
   
 });
+
+app.post("/join-club", urlencodedParser, [
+  // Validate and sanitize fields.
+  body("passcode")
+  .custom(async (passcode, { req }) => {
+      const userCode = req.body.passcode
+      const secretCode = "helloworld"
+      if (userCode !== secretCode) {
+          throw new Error("Sorry, incorrect passcode. Try again.");
+      }
+  }),
+  (req, res, next) => {
+  // If errors, render form with errors array
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()) {
+      // return res.status(422).jsonp(errors.array());
+      const alert = errors.array();
+
+      res.render("join-club", {
+        title: "Ready to join the club?",
+        alert,
+        user: res.locals.currentUser,
+      })
+    return;
+  } 
+  // Success, no errors. Update status and return message to user
+  const userID = res.locals.currentUser._id
+  User.findByIdAndUpdate(userID, { membership_status: true }, {new: true}, (err) => {
+    if (err) {
+      return next(err);
+    }
+  });
+  res.render("join-club", {
+    title: "Congratulations, you now have membership status!",
+    user: res.locals.currentUser,
+  });
+  }
+]);
 
 app.post(
     "/log-in",
