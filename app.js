@@ -1,12 +1,14 @@
 /////// app.js
-
+var createError = require('http-errors');
 const express = require("express");
 const path = require("path");
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
 const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
-require('dotenv').config({ path: ".env"});
+require('dotenv').config()
 const async = require("async");
 const { body, validationResult } = require("express-validator");
 const bodyParser = require("body-parser");
