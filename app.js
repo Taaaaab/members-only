@@ -17,20 +17,18 @@ const app = express();
 
 // Set up mongoose connection
 const mongoose = require("mongoose");
+mongoose.set('strictQuery', false);
+// Set up mongoose connection
 const dev_db_url = process.env.MONGODB_URL;
 const mongoDB = process.env.MONGODB_URI || dev_db_url;
-const  connectDB =  async(url)=>{
-  return await mongoose.connect(url)
-   .then(()=>console.log('connected to db...'))   
-  .catch((error)=>console.log(error))
-  
-  }
-connectDB(mongoDB);  
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
+
+main().catch(err => console.log(err));
+async function main() {
+  await mongoose.connect(mongoDB);
+}
 
 app.use(compression()); // Compress all routes
-app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
+app.use(helmet());
 app.use(express.static(__dirname + "/public"));
 app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
