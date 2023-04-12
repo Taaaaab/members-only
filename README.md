@@ -3,7 +3,7 @@
 This project was completed for The Odin Project Members Only Assignment. The goal of the project was to create a message board to test authentication using passportJS and bcryptjs.
 Guest visitors only able to view message text. Signed-in users able to post messages and view the author/timestamp. Admin users given the same view with additional ability to delete posts. Users and messages stored using MongoDB with Mongoose Schema.
 
-![Alt text](https://github.com/Taaaaab/personal-portfolio/blob/main/src/assets/members.png?raw=true "Screenshot")
+![Alt text](https://github.com/Taaaaab/personal-portfolio/blob/main/images/members.png?raw=true "Screenshot")
 
 ## Built With
 
